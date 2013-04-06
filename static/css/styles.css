@@ -1,0 +1,23 @@
+#content{
+	margin-top: 65px;
+}
+	#connectForm input {
+		height: 30px;
+	}
+
+.doc {
+	padding: 10px;
+	margin: 10px;
+	text-align: right;
+}
+	.doc pre{
+		text-align: left;
+		word-wrap: break-word;
+	}
+.edit {
+
+}
+.edit textarea {
+	width: 90%;
+	height: 350px;
+}

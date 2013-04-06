@@ -1,0 +1,24 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    bson (1.8.4)
+    json (1.7.7)
+    mongo (1.8.4)
+      bson (~> 1.8.4)
+    rack (1.4.2)
+    rack-protection (1.3.2)
+      rack
+    sinatra (1.3.3)
+      rack (~> 1.3, >= 1.3.6)
+      rack-protection (~> 1.2)
+      tilt (~> 1.3, >= 1.3.3)
+    tilt (1.3.3)
+
+PLATFORMS
+  ruby
+  x86-mingw32
+
+DEPENDENCIES
+  json
+  mongo
+  sinatra

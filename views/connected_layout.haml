@@ -1,0 +1,10 @@
+.row
+	.span3
+		%h4 #{@@db.name}
+		%ul.nav.nav-tabs.nav-stacked.nav-pills
+			- @@db.collection_names.each do |collection|
+				%li
+					%a{:href => "/collection/#{collection}"}
+						#{collection}
+	.span9
+		= yield

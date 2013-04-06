@@ -1,0 +1,9 @@
+.edit
+	%h3 Editing document
+	%form{:method => "POST", :action => "/collection/#{params[:collection]}/#{params[:id]}/edit"}
+		%textarea{:name => "jsonDoc"}
+			#{JSON.pretty_generate(JSON.parse(@doc.to_json))}
+		%button.btn.btn-primary
+			Submit changes
+		%a.btn.btn-danger{:href => "/collection/#{params[:collection]}"}
+			Cancel edit
