@@ -7,7 +7,7 @@
 - @docs.each do |doc|
 	.doc 
 		%pre
-			#{JSON.pretty_generate(JSON.parse(doc.to_json))}
+			& #{JSON.pretty_generate(JSON.parse(doc.to_json))}
 		%a.btn.btn-primary{:href => "/collection/#{params[:collection]}/#{doc["_id"]}/edit"}
 			Edit
 		%a.btn.btn-danger{:href => "/collection/#{params[:collection]}/#{doc["_id"]}/delete"}

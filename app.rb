@@ -67,6 +67,7 @@ end
 configure do
   set :public_folder, Proc.new { File.join(root, "static") }
   set :my_config_property, 'hello world'
+  use Rack::Session::Pool, :expire_after => 2592000
 end
 
 get '/' do
@@ -74,18 +75,18 @@ get '/' do
 end
 
 post '/' do
-  @@db = get_connection(params[:connectionString])
+  session[:db] = get_connection(params[:connectionString])
   connected_template("index")
 end
 
 get '/collection/:collection' do
-  coll = @@db.collection(params[:collection])
+  coll = session[:db].collection(params[:collection])
   @docs = coll.find()
   connected_template("collection")
 end
 
 get '/collection/:collection/:id/edit' do
-  @doc = @@db.collection(params[:collection]).find_one({"_id" => BSON::ObjectId(params[:id])})
+  @doc = session[:db].collection(params[:collection]).find_one({"_id" => BSON::ObjectId(params[:id])})
   connected_template("editDoc")
 end
 
@@ -93,9 +94,9 @@ post '/collection/:collection/:id/edit' do
   id = params[:id]
   input = JSON.parse(params[:jsonDoc])
   puts input
-  prev_doc = @@db.collection(params[:collection]).find_one({"_id" => BSON::ObjectId(params[:id])})
+  prev_doc = session[:db].collection(params[:collection]).find_one({"_id" => BSON::ObjectId(params[:id])})
 
-  coll = @@db.collection(params[:collection])
+  coll = session[:db].collection(params[:collection])
   prepare_update_params(input)
   puts input
   #coll.update(input, prev_doc)
