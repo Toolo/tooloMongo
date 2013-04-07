@@ -5,13 +5,13 @@ require 'haml'
 
 load 'mongo/connect.rb'
 
-
 module FieldTypes
   HASH = 0
   STRING = 1
   DATE = 2
   ID = 3
   ARRAY = 4
+  IDARRAY = 5
 end
 
 def connected_template(template)
@@ -22,15 +22,6 @@ def connected_template(template)
   end
 end
 
-def get_type_of_field(key, value)
-  return FieldTypes::ID if value.class == Hash && value.has_key?("$oid")
-  return FieldTypes::HASH if value.class == Hash 
-  return FieldTypes::ARRAY if value.class == Array
-  return FieldTypes::DATE if value =~ /\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/
-  return FieldTypes::STRING if key != "$oid"
-  
-end
-
 def get_utc_date(value)
   date_parts = value.split(" ")
   date = date_parts[0].split("-")
@@ -38,35 +29,40 @@ def get_utc_date(value)
   new_date = Time.new(date[0].to_i, date[1].to_i, date[2].to_i, time[0].to_i, time[1].to_i, time[2].to_i)
 end
 
+def get_type_of_field(value)
+  return FieldTypes::IDARRAY if value.class == Array && value[0].class == Hash && value[0].has_key?("$oid")
+  return FieldTypes::ID if value.class == Hash && value.has_key?("$oid")
+  return FieldTypes::HASH if value.class == Hash 
+  return FieldTypes::ARRAY if value.class == Array
+  return FieldTypes::DATE if value =~ /\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/
+  return FieldTypes::STRING
+end
+
 def prepare_update_params(update_params)
-  update_params.each do |key, value|
-    puts key
-    type = get_type_of_field(key, value)
-    case type
-    when FieldTypes::HASH
-      puts "Hash, recursive call", update_params[key]
-      prepare_update_params(value)
-      puts "Hash, done", update_params[key]
-    when FieldTypes::DATE
-      update_params[key] = get_utc_date(value)
-#    when FieldTypes::STRING
-    when FieldTypes::ID
-      puts "ID in", value
-      value.delete("$oid")
-      if value.keys.count == 0
-        puts "I SHOULD DELETE ME MAN"
-        update_params.delete(key)
-      end
-      puts "ID out", value
-    when FieldTypes::ARRAY
-      puts "ARRAY"
+  type = get_type_of_field(update_params)
+  case type
+  when FieldTypes::HASH
+    update_params.each do |key, value|
+      update_params[key] = prepare_update_params(update_params[key])
     end
+  when FieldTypes::ID
+    update_params = BSON::ObjectId(update_params["$oid"])
+  when FieldTypes::ARRAY
+    update_params.map do |item|
+      prepare_update_params(item)
+    end
+  when FieldTypes::IDARRAY
+    update_params = update_params.map do |item|
+      item = BSON::ObjectId(item["$oid"])
+    end
+  when FieldTypes::DATE
+    update_params = get_utc_date(update_params)
   end
+  update_params
 end
 
 configure do
   set :public_folder, Proc.new { File.join(root, "static") }
-  set :my_config_property, 'hello world'
   use Rack::Session::Pool, :expire_after => 2592000
 end
 
@@ -93,12 +89,9 @@ end
 post '/collection/:collection/:id/edit' do
   id = params[:id]
   input = JSON.parse(params[:jsonDoc])
-  puts input
   prev_doc = session[:db].collection(params[:collection]).find_one({"_id" => BSON::ObjectId(params[:id])})
-
   coll = session[:db].collection(params[:collection])
   prepare_update_params(input)
-  puts input
-  #coll.update(input, prev_doc)
+  coll.update(prev_doc, input)
   redirect "/collection/#{params[:collection]}"
 end

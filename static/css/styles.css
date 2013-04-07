@@ -13,6 +13,8 @@
 	.doc pre{
 		text-align: left;
 		word-wrap: break-word;
+		max-height: 440px;
+		overflow: scroll;
 	}
 .edit {
 
