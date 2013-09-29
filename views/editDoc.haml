@@ -1,9 +1,19 @@
 .edit
 	%h3 Editing document
 	%form{:method => "POST", :action => "/collection/#{params[:collection]}/#{params[:id]}/edit"}
-		%textarea{:name => "jsonDoc"}
-			#{JSON.pretty_generate(JSON.parse(@doc.to_json))}
+		%textarea{:id => "code", :name => "jsonDoc"}
+			#{JSON.pretty_generate(@doc)}
 		%button.btn.btn-primary
 			Submit changes
 		%a.btn.btn-danger{:href => "/collection/#{params[:collection]}"}
 			Cancel edit
+		:javascript
+			var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+				name: "application/json",
+				json: true,
+				smartIndent: true
+			});
+			var value = JSON.parse(editor.getValue());
+			var properFormatting = JSON.stringify(value, null, 4);
+			editor.setValue(properFormatting);
+
