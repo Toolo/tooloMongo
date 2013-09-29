@@ -87,11 +87,17 @@ get '/collection/:collection/:id/edit' do
 end
 
 post '/collection/:collection/:id/edit' do
-  id = params[:id]
   input = JSON.parse(params[:jsonDoc])
-  prev_doc = session[:db].collection(params[:collection]).find_one({"_id" => BSON::ObjectId(params[:id])})
   coll = session[:db].collection(params[:collection])
+  prev_doc = coll.find_one({"_id" => BSON::ObjectId(params[:id])})
   prepare_update_params(input)
   coll.update(prev_doc, input)
   redirect "/collection/#{params[:collection]}"
 end
+
+post '/collection/:collection/:id/delete' do
+  coll = session[:db].collection(params[:collection]);
+  coll.remove({"_id" => BSON::ObjectId(params[:id])})
+  redirect "/collection/#{params[:collection]}"
+end
+

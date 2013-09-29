@@ -19,7 +19,7 @@
 .edit {
 
 }
-/*.edit textarea {*/
-	/*width: 90%;*/
-	/*height: 350px;*/
-/*}*/
+
+form.delete-form {
+    display: inline;
+}

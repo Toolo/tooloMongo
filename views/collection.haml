@@ -7,8 +7,9 @@
 - @docs.each do |doc|
 	.doc 
 		%pre
-			& #{JSON.pretty_generate(JSON.parse(doc.to_json))}
+			& #{JSON.pretty_generate(doc)}
 		%a.btn.btn-primary{:href => "/collection/#{params[:collection]}/#{doc["_id"]}/edit"}
 			Edit
-		%a.btn.btn-danger{:href => "/collection/#{params[:collection]}/#{doc["_id"]}/delete"}
-			Delete
+		%form.form-inline{:class=> "delete-form", :method => "POST", :action => "/collection/#{params[:collection]}/#{doc["_id"]}/delete"}
+			%button.btn.btn-danger
+				Delete

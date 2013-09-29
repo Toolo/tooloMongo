@@ -1,8 +1,8 @@
 %form.form-horizontal#connectForm{:method => "POST", :action => "/"}
-	.control-group
+	.form-group
 		%label.control-label
 			Mongo string connection:
-		.controls
-			%input.input-block-level{:type => "text", :name => "connectionString", :placeholder => "<mongodb://username:pass@host:port/db>"}
-	%button.btn.btn-primary.btn-large
-		Connect to database!
+		%input.form-control{:type => "text", :name => "connectionString", :placeholder => "<mongodb://username:pass@host:port/db>"}
+	.form-group
+		%button.btn.btn-primary.btn-large
+			Connect to database!
